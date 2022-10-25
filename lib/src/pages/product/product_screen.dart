@@ -31,7 +31,7 @@ class _ProductScreenState extends State<ProductScreen> {
               Expanded(
                 child: Hero(
                   tag: widget.item.img,
-                  child: Image.asset(widget.item.img),
+                  child: Image.network(widget.item.img),
                 ),
               ),
 

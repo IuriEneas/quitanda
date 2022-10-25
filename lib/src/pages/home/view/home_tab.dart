@@ -1,7 +1,6 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
-import 'package:quitanda/src/config/app_data.dart' as app_data;
 import 'package:quitanda/src/config/custom_color.dart';
 import 'package:quitanda/src/pages/home/controller/home_controller.dart';
 import 'package:quitanda/src/widgets/custom_shimmer.dart';
@@ -101,7 +100,7 @@ class _HomeTabState extends State<HomeTab> {
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   itemBuilder: (context, index) {
-                    return !controller.isLoading
+                    return !controller.isCategoryLoading
                         ? CategoryTile(
                             category: controller.categories[index].title,
                             isSelected: controller.categories[index] ==
@@ -123,8 +122,9 @@ class _HomeTabState extends State<HomeTab> {
                   },
                   separatorBuilder: (context, index) =>
                       const SizedBox(width: 10),
-                  itemCount:
-                      !controller.isLoading ? controller.categories.length : 5,
+                  itemCount: !controller.isCategoryLoading
+                      ? controller.categories.length
+                      : 5,
                 ),
               );
             },
@@ -135,7 +135,7 @@ class _HomeTabState extends State<HomeTab> {
             init: HomeController(),
             builder: (controller) {
               return Expanded(
-                child: !controller.isLoading
+                child: !controller.isProductLoading
                     ? GridView.builder(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                         physics: const BouncingScrollPhysics(),
@@ -146,9 +146,9 @@ class _HomeTabState extends State<HomeTab> {
                           crossAxisSpacing: 10,
                           childAspectRatio: 9 / 11.5,
                         ),
-                        itemCount: app_data.items.length,
+                        itemCount: controller.allProducts.length,
                         itemBuilder: (context, index) {
-                          return ItemTile(item: app_data.items[index]);
+                          return ItemTile(item: controller.allProducts[index]);
                         },
                       )
                     : GridView.count(
@@ -159,7 +159,7 @@ class _HomeTabState extends State<HomeTab> {
                         crossAxisSpacing: 10,
                         childAspectRatio: 9 / 11.5,
                         children: List.generate(
-                          8,
+                          6,
                           (index) => CustomShimmer(
                             height: double.infinity,
                             width: double.infinity,
