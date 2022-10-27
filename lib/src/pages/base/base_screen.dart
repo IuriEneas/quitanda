@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:quitanda/src/pages/base/controller/navigation_controller.dart';
 import 'package:quitanda/src/pages/cart/cart_tab.dart';
 import 'package:quitanda/src/pages/orders/orders_tab.dart';
 import 'package:quitanda/src/pages/profile/profile_tab.dart';
@@ -13,14 +15,13 @@ class BaseScreen extends StatefulWidget {
 }
 
 class _BaseScreenState extends State<BaseScreen> {
-  int _currentIndex = 0;
-  final _pageController = PageController();
+  final navigationController = Get.find<NavigationController>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: PageView(
-        controller: _pageController,
+        controller: navigationController.pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: const [
           HomeTab(),
@@ -31,43 +32,40 @@ class _BaseScreenState extends State<BaseScreen> {
       ),
 
       // Bottom navigation
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.green,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white.withAlpha(100),
-
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-            _pageController.animateToPage(
+      bottomNavigationBar: Obx(
+        () => BottomNavigationBar(
+          currentIndex: navigationController.currentIndex,
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.green,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white.withAlpha(100),
+          onTap: (index) {
+            navigationController.navigatePageView(index);
+            navigationController.pageController.animateToPage(
               index,
               curve: Curves.ease,
               duration: const Duration(milliseconds: 600),
             );
-          });
-        },
+          },
 
-        // Items
-        items: const [
-          BottomNavigationBarItem(
-            label: 'Home',
-            icon: Icon(Icons.home),
-          ),
-          BottomNavigationBarItem(
-            label: 'Carrinho',
-            icon: Icon(Icons.shopping_cart_outlined),
-          ),
-          BottomNavigationBarItem(
-            label: 'Pedidos',
-            icon: Icon(Icons.list),
-          ),
-          BottomNavigationBarItem(
-            label: 'Perfil',
-            icon: Icon(Icons.person_outline),
-          ),
-        ],
+          // Items
+          items: const [
+            BottomNavigationBarItem(
+              label: 'Home',
+              icon: Icon(Icons.home),
+            ),
+            BottomNavigationBarItem(
+              label: 'Carrinho',
+              icon: Icon(Icons.shopping_cart_outlined),
+            ),
+            BottomNavigationBarItem(
+              label: 'Pedidos',
+              icon: Icon(Icons.list),
+            ),
+            BottomNavigationBarItem(
+                label: 'Perfil', icon: Icon(Icons.person_outline))
+          ],
+        ),
       ),
     );
   }
