@@ -17,11 +17,39 @@ class HomeController extends GetxController {
 
   List<ItemModel> get allProducts => currentCategory?.items ?? [];
 
+  RxString searchTitle = ''.obs;
+
+  bool get isLastPage {
+    if (currentCategory!.items.length < itensPerPage) return true;
+
+    return currentCategory!.pagination * itensPerPage > allProducts.length;
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    getAllCategories();
+
+    debounce(
+      searchTitle,
+      (_) => filterByTitle(),
+      time: const Duration(milliseconds: 600),
+    );
+  }
+
   void selectCategory(CategoryModel category) {
     currentCategory = category;
     update();
 
+    if (currentCategory!.items.isNotEmpty) return;
+
     getAllProducts();
+  }
+
+  void loadMoreProducts() {
+    currentCategory!.pagination++;
+
+    getAllProducts(canLoad: false);
   }
 
   void setLoading(bool bool, {bool isProduct = false}) {
@@ -34,10 +62,38 @@ class HomeController extends GetxController {
     update();
   }
 
-  @override
-  void onInit() {
-    super.onInit();
-    getAllCategories();
+  void filterByTitle() {
+    // Apagar todos os itens das categorias
+    for (var category in categories) {
+      category.items.clear();
+      category.pagination = 0;
+    }
+
+    if (searchTitle.value.isEmpty) {
+      categories.removeAt(0);
+    } else {
+      CategoryModel? c = categories.firstWhereOrNull((cat) => cat.id == '');
+
+      if (c == null) {
+        // Criar uma nova categoria em todos
+        final todosCategory = CategoryModel(
+          id: '',
+          title: 'Todos',
+          items: [],
+          pagination: 0,
+        );
+
+        categories.insert(0, todosCategory);
+      } else {
+        c.items.clear();
+        c.pagination = 0;
+      }
+    }
+
+    currentCategory = categories.first;
+
+    update();
+    getAllProducts();
   }
 
   Future<void> getAllCategories() async {
@@ -63,14 +119,24 @@ class HomeController extends GetxController {
     setLoading(false);
   }
 
-  Future<void> getAllProducts() async {
-    setLoading(true, isProduct: true);
+  Future<void> getAllProducts({bool canLoad = true}) async {
+    if (canLoad) {
+      setLoading(true, isProduct: true);
+    }
 
     Map<String, dynamic> body = {
       'page': currentCategory!.pagination,
       'categoryId': currentCategory!.id,
       'itemsPerPage': itensPerPage,
     };
+
+    if (searchTitle.value.isNotEmpty) {
+      body['title'] = searchTitle.value;
+
+      if (currentCategory!.id == '') {
+        body.remove('categoryId');
+      }
+    }
 
     HomeResult<ItemModel> itemResult =
         await homeRepository.getAllProducts(body);
@@ -79,8 +145,7 @@ class HomeController extends GetxController {
 
     itemResult.when(
       success: (data) {
-        currentCategory!.items = data;
-        print(data);
+        currentCategory!.items.addAll(data);
       },
       error: (message) {
         utilsServices.showToast(message: message);
