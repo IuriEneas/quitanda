@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:quitanda/src/models/cart_item_model.dart';
+import 'package:get/get_state_manager/src/simple/get_state.dart';
+import 'package:quitanda/src/pages/cart/controller/cart_controller.dart';
 import 'package:quitanda/src/services/utils_services.dart';
 import 'package:quitanda/src/config/custom_color.dart';
 import 'package:quitanda/src/config/app_data.dart' as app_data;
@@ -16,12 +17,6 @@ class CartTab extends StatefulWidget {
 
 class _CartTabState extends State<CartTab> {
   final UtilsServices utilsServices = UtilsServices();
-
-  void removeItemFromCart(CartItemModel cartItem) {
-    setState(() {
-      app_data.cartItems.remove(cartItem);
-    });
-  }
 
   double cartTotalPrice() {
     double total = 0;
@@ -48,26 +43,20 @@ class _CartTabState extends State<CartTab> {
       body: Column(
         children: [
           // ListView Cart items
-          Expanded(
-            child: ListView.builder(
-              itemCount: app_data.cartItems.length,
-              itemBuilder: (context, index) {
-                return CartTile(
-                  itemCart: app_data.cartItems[index],
-                  updatedQuantity: (quantity) {
-                    final cartItem = app_data.cartItems[index];
-
-                    if (quantity == 0) {
-                      removeItemFromCart(cartItem);
-                    } else {
-                      setState(() {
-                        cartItem.quantity = quantity;
-                      });
-                    }
+          GetBuilder<CartController>(
+            builder: (controller) {
+              return Expanded(
+                child: ListView.builder(
+                  itemCount: controller.items.length,
+                  itemBuilder: (context, index) {
+                    return CartTile(
+                      itemCart: controller.items[index],
+                      updatedQuantity: (quantity) {},
+                    );
                   },
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
 
           // Bottom sheet total
@@ -102,13 +91,17 @@ class _CartTabState extends State<CartTab> {
                 ),
 
                 // Price text
-                Text(
-                  utilsServices.priceToCurrency(cartTotalPrice()),
-                  style: TextStyle(
-                    fontSize: 23,
-                    color: CustomColors.customSwatchColor,
-                    fontWeight: FontWeight.bold,
-                  ),
+                GetBuilder<CartController>(
+                  builder: (_) {
+                    return Text(
+                      utilsServices.priceToCurrency(_.cartTotalPrice()),
+                      style: TextStyle(
+                        fontSize: 23,
+                        color: CustomColors.customSwatchColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
                 ),
 
                 // Spacer
