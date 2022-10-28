@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:quitanda/src/config/custom_color.dart';
 import 'package:quitanda/src/models/item_model.dart';
-import 'package:quitanda/src/pages/product/product_screen.dart';
+import 'package:quitanda/src/pages/pages_route/app_pages.dart';
 import 'package:quitanda/src/services/utils_services.dart';
 
 class ItemTile extends StatelessWidget {
@@ -17,13 +18,7 @@ class ItemTile extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => ProductScreen(
-                  item: item,
-                ),
-              ),
-            );
+            Get.toNamed(PagesRoute.productRoute, arguments: item);
           },
           child: Card(
             elevation: 3,

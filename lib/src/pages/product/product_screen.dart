@@ -9,9 +9,9 @@ import 'package:quitanda/src/widgets/quantity_widget.dart';
 import '../cart/controller/cart_controller.dart';
 
 class ProductScreen extends StatefulWidget {
-  const ProductScreen({super.key, required this.item});
+  ProductScreen({super.key});
 
-  final ItemModel item;
+  final ItemModel item = Get.arguments;
 
   @override
   State<ProductScreen> createState() => _ProductScreenState();
