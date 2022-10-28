@@ -6,6 +6,8 @@ import 'package:quitanda/src/pages/base/controller/navigation_controller.dart';
 import 'package:quitanda/src/services/utils_services.dart';
 import 'package:quitanda/src/widgets/quantity_widget.dart';
 
+import '../cart/controller/cart_controller.dart';
+
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key, required this.item});
 
@@ -20,6 +22,7 @@ class _ProductScreenState extends State<ProductScreen> {
 
   int cartQuantity = 1;
   final navigationController = Get.find<NavigationController>();
+  final cartController = Get.find<CartController>();
 
   @override
   Widget build(BuildContext context) {
@@ -124,6 +127,12 @@ class _ProductScreenState extends State<ProductScreen> {
                           ),
                           onPressed: () {
                             Get.back();
+
+                            cartController.addItemtoCart(
+                              item: widget.item,
+                              quantity: cartQuantity,
+                            );
+
                             navigationController.navigatePageView(
                               NavigationTabs.cart,
                             );

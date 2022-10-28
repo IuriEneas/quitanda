@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_state_manager/src/simple/get_state.dart';
+import 'package:get/get.dart';
 import 'package:quitanda/src/pages/cart/controller/cart_controller.dart';
 import 'package:quitanda/src/services/utils_services.dart';
 import 'package:quitanda/src/config/custom_color.dart';
