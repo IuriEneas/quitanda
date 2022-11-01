@@ -2,6 +2,7 @@ import 'package:quitanda/src/constants/endpoints.dart';
 import 'package:quitanda/src/models/order_model.dart';
 import 'package:quitanda/src/services/http_maneger.dart';
 
+import '../../../models/cart_item_model.dart';
 import '../result/order_result.dart';
 
 class OrderRepository {
@@ -32,7 +33,8 @@ class OrderRepository {
     }
   }
 
-  Future getOrderItems({required String orderId, required String token}) async {
+  Future<OrderResult<List<CartItemModel>>> getOrderItems(
+      {required String orderId, required String token}) async {
     final result = await _httpManager.restRequest(
       url: Endpoints.getOrderItems,
       method: HttpMethods.post,
@@ -45,6 +47,14 @@ class OrderRepository {
     );
 
     if (result['result'] != null) {
-    } else {}
+      List<CartItemModel> items =
+          List<Map<String, dynamic>>.from(result['result'])
+              .map(CartItemModel.fromJson)
+              .toList();
+
+      return OrderResult<List<CartItemModel>>.success(items);
+    } else {
+      return OrderResult.error('Não foi possivel recuperar itens');
+    }
   }
 }

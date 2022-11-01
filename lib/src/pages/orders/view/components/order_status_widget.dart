@@ -40,9 +40,10 @@ class OrderStatusWidget extends StatelessWidget {
           ),
         ] else if (isOverdue) ...[
           const _StatusDot(
-            isActive: false,
+            isActive: true,
             label: 'Pix vencido',
             backgroundColor: Colors.red,
+            icon: Icons.close,
           ),
         ] else ...[
           _StatusDot(
@@ -90,11 +91,13 @@ class _StatusDot extends StatelessWidget {
     required this.isActive,
     required this.label,
     this.backgroundColor,
+    this.icon,
   }) : super(key: key);
 
   final bool isActive;
   final String label;
   final Color? backgroundColor;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -114,8 +117,8 @@ class _StatusDot extends StatelessWidget {
                 : Colors.transparent,
           ),
           child: isActive
-              ? const Icon(
-                  Icons.check,
+              ? Icon(
+                  icon ?? Icons.check,
                   size: 13,
                   color: Colors.white,
                 )

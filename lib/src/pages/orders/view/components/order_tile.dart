@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:quitanda/src/models/cart_item_model.dart';
 import 'package:quitanda/src/models/order_model.dart';
+import 'package:quitanda/src/pages/orders/controller/order_item_controller.dart';
 import 'package:quitanda/src/services/utils_services.dart';
-import 'package:quitanda/src/widgets/payment_widget.dart';
 
+import '../../../../widgets/payment_widget.dart';
 import 'order_status_widget.dart';
 
 class OrderTile extends StatelessWidget {
@@ -19,106 +21,121 @@ class OrderTile extends StatelessWidget {
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
-          initiallyExpanded: order.status == 'pending_payment',
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Order Id
-              Text('Pedido ${order.id}'),
-
-              // Order Date
-              Text(
-                utilsServices.formatDatetime(order.createDate!),
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.black,
-                ),
-              ),
-            ],
-          ),
-          childrenPadding: const EdgeInsets.all(14),
-          children: [
-            // Orders List
-            IntrinsicHeight(
-              child: Row(
+        child: GetBuilder<OrderItemController>(
+          init: OrderItemController(order),
+          global: false,
+          builder: (controller) {
+            return ExpansionTile(
+              expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
+              // initiallyExpanded: order.status == 'pending_payment',
+              onExpansionChanged: (value) {
+                if (value && order.items.isEmpty) {
+                  controller.getOrderItems();
+                }
+              },
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Order List
-                  Expanded(
-                    flex: 3,
-                    child: SizedBox(
-                      height: 150,
-                      child: ListView(
-                        children: order.items.map((orderItem) {
-                          return _OrderItemWidget(
-                            utilsServices: utilsServices,
-                            orderItem: orderItem,
-                          );
-                        }).toList(),
+                  // Order Id
+                  Text('Pedido ${order.id}'),
+
+                  // Order Date
+                  Text(
+                    utilsServices.formatDatetime(order.createDate!),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+              childrenPadding: const EdgeInsets.all(14),
+              children: [
+                // Orders List
+                IntrinsicHeight(
+                  child: Row(
+                    children: [
+                      // Order List
+                      Expanded(
+                        flex: 3,
+                        child: SizedBox(
+                          height: 150,
+                          child: controller.isLoading
+                              ? const Center(child: CircularProgressIndicator())
+                              : ListView(
+                                  children: order.items.map((orderItem) {
+                                    return _OrderItemWidget(
+                                      utilsServices: utilsServices,
+                                      orderItem: orderItem,
+                                    );
+                                  }).toList(),
+                                ),
+                        ),
+                      ),
+
+                      // Vertical Divider
+                      VerticalDivider(
+                        color: Colors.grey.shade300,
+                        thickness: 2,
+                        width: 20,
+                      ),
+
+                      // Order Status
+                      Expanded(
+                        flex: 2,
+                        child: OrderStatusWidget(
+                          status: order.status,
+                          isOverdue: order.overdueDate.isBefore(DateTime.now()),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+
+                // Total
+                Text.rich(
+                  TextSpan(
+                    style: const TextStyle(fontSize: 20),
+                    children: [
+                      const TextSpan(
+                        text: 'Total ',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                          text: utilsServices.priceToCurrency(order.total)),
+                    ],
+                  ),
+                ),
+
+                // Pix Button
+                Visibility(
+                  visible: order.status == 'pending_payment' &&
+                      order.isOverDue == false,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return PaymentDialog(order: order);
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                  ),
-
-                  // Vertical Divider
-                  VerticalDivider(
-                    color: Colors.grey.shade300,
-                    thickness: 2,
-                    width: 20,
-                  ),
-
-                  // Order Status
-                  Expanded(
-                    flex: 2,
-                    child: OrderStatusWidget(
-                      status: order.status,
-                      isOverdue: order.overdueDate.isBefore(DateTime.now()),
+                    icon: Image.asset(
+                      'assets/app_images/pix.png',
+                      height: 24,
                     ),
-                  )
-                ],
-              ),
-            ),
-
-            // Total
-            Text.rich(
-              TextSpan(
-                style: const TextStyle(fontSize: 20),
-                children: [
-                  const TextSpan(
-                    text: 'Total ',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(text: utilsServices.priceToCurrency(order.total)),
-                ],
-              ),
-            ),
-
-            // Pix Button
-            Visibility(
-              visible: order.status == 'pending_payment',
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return PaymentDialog(order: order);
-                    },
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    label: const Text('Pague com pix'),
                   ),
                 ),
-                icon: Image.asset(
-                  'assets/app_images/pix.png',
-                  height: 24,
-                ),
-                label: const Text('Pague com pix'),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );
