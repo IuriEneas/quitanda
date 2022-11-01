@@ -7,12 +7,14 @@ part 'order_model.g.dart';
 class OrderModel {
   String id;
 
-  @JsonKey(defaultValue: [])
-  List<CartItemModel> items;
+  @JsonKey(name: 'createdAt')
   DateTime? createDate;
 
   @JsonKey(name: 'due')
   DateTime overdueDate;
+
+  @JsonKey(defaultValue: [])
+  List<CartItemModel> items;
   String status;
 
   String qrCodeImage;

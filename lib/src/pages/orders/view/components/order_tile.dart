@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:quitanda/src/models/cart_item_model.dart';
 import 'package:quitanda/src/models/order_model.dart';
-import 'package:quitanda/src/pages/orders/components/order_status_widget.dart';
 import 'package:quitanda/src/services/utils_services.dart';
 import 'package:quitanda/src/widgets/payment_widget.dart';
+
+import 'order_status_widget.dart';
 
 class OrderTile extends StatelessWidget {
   OrderTile({super.key, required this.order});
