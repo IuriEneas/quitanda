@@ -1,5 +1,5 @@
+import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:quitanda/src/models/order_model.dart';
 import 'package:quitanda/src/services/utils_services.dart';
 
@@ -33,11 +33,10 @@ class PaymentDialog extends StatelessWidget {
                 ),
 
                 // QR code
-                QrImage(
-                  data:
-                      'https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley',
-                  version: QrVersions.auto,
-                  size: 200,
+                Image.memory(
+                  utilsServices.decodeQrCodeImage(order.qrCodeImage),
+                  height: 200,
+                  width: 200,
                 ),
 
                 // Expiration
@@ -57,15 +56,21 @@ class PaymentDialog extends StatelessWidget {
 
                 // Button copy to clipboard
                 OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    FlutterClipboard.copy(order.copyAndPaste);
+                    utilsServices.showToast(
+                      message: 'Código copiado para a área de transferência',
+                    );
+                  },
                   style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      side: const BorderSide(
-                        color: Colors.green,
-                        width: 2,
-                      )),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    side: const BorderSide(
+                      color: Colors.green,
+                      width: 2,
+                    ),
+                  ),
                   label: const Text('Copiar código pix'),
                   icon: const Icon(Icons.copy),
                 )

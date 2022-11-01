@@ -108,6 +108,7 @@ List<OrderModel> orders = [
     createDate: DateTime.parse('2023-06-08 10:00:10.465'),
     overdueDate: DateTime.parse('2023-06-08 11:00:10.465'),
     status: 'pending_payment',
+    qrCodeImage: '',
     copyAndPaste: 'd12a3fa343t',
     total: 13.5,
     items: [
@@ -127,6 +128,7 @@ List<OrderModel> orders = [
     id: 'testeid2',
     createDate: DateTime.parse('2023-02-08 10:00:10.465'),
     overdueDate: DateTime.parse('2023-02-08 11:00:10.465'),
+    qrCodeImage: '',
     status: 'preparing_purchase',
     copyAndPaste: 'd12a3fa343t',
     total: 11,

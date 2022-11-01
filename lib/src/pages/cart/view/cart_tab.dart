@@ -4,7 +4,6 @@ import 'package:quitanda/src/pages/cart/controller/cart_controller.dart';
 import 'package:quitanda/src/services/utils_services.dart';
 import 'package:quitanda/src/config/custom_color.dart';
 import 'package:quitanda/src/config/app_data.dart' as app_data;
-import 'package:quitanda/src/widgets/payment_widget.dart';
 
 import 'components/cart_tile.dart';
 
@@ -17,6 +16,7 @@ class CartTab extends StatefulWidget {
 
 class _CartTabState extends State<CartTab> {
   final UtilsServices utilsServices = UtilsServices();
+  final cartController = Get.find<CartController>();
 
   double cartTotalPrice() {
     double total = 0;
@@ -43,20 +43,32 @@ class _CartTabState extends State<CartTab> {
       body: Column(
         children: [
           // ListView Cart items
-          GetBuilder<CartController>(
-            builder: (controller) {
-              return Expanded(
-                child: ListView.builder(
+          Expanded(
+            child: GetBuilder<CartController>(
+              builder: (controller) {
+                if (controller.items.isEmpty) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.remove_shopping_cart,
+                        size: 40,
+                        color: CustomColors.customSwatchColor,
+                      ),
+                      const Text('Não há itens no carrinho'),
+                    ],
+                  );
+                }
+                return ListView.builder(
                   itemCount: controller.items.length,
                   itemBuilder: (context, index) {
                     return CartTile(
                       itemCart: controller.items[index],
-                      updatedQuantity: (quantity) {},
                     );
                   },
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
 
           // Bottom sheet total
@@ -110,32 +122,36 @@ class _CartTabState extends State<CartTab> {
                 // Concluir pedido button
                 SizedBox(
                   height: 50,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      bool? result = await showOrderConfirmation();
+                  child: GetBuilder<CartController>(
+                    builder: (_) {
+                      return ElevatedButton(
+                        onPressed: () async {
+                          bool? result = await showOrderConfirmation();
 
-                      if (result ?? false) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return PaymentDialog(order: app_data.orders.first);
-                          },
-                        );
-                      }
+                          if (result ?? false) {
+                            cartController.checkout();
+                          } else {
+                            utilsServices.showToast(
+                                message: 'Pedido não confirmado');
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: CustomColors.customSwatchColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: _.isLoadingCheckout
+                            ? const CircularProgressIndicator()
+                            : const Text(
+                                'Concluir Pedido',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                ),
+                              ),
+                      );
                     },
-                    style: ElevatedButton.styleFrom(
-                      primary: CustomColors.customSwatchColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: const Text(
-                      'Concluir Pedido',
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                      ),
-                    ),
                   ),
                 ),
               ],

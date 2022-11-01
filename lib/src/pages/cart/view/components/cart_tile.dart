@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:quitanda/src/models/cart_item_model.dart';
+import 'package:quitanda/src/pages/cart/controller/cart_controller.dart';
 import 'package:quitanda/src/services/utils_services.dart';
 import 'package:quitanda/src/widgets/quantity_widget.dart';
 
 class CartTile extends StatefulWidget {
-  const CartTile(
-      {super.key, required this.itemCart, required this.updatedQuantity});
+  const CartTile({super.key, required this.itemCart});
 
   final CartItemModel itemCart;
-  final Function(int quantity) updatedQuantity;
-
   @override
   State<CartTile> createState() => _CartTileState();
 }
 
 class _CartTileState extends State<CartTile> {
   final UtilsServices utilsServices = UtilsServices();
+
+  final controller = Get.find<CartController>();
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +46,12 @@ class _CartTileState extends State<CartTile> {
         trailing: QuantityWidget(
           value: widget.itemCart.quantity,
           sufixText: widget.itemCart.item.unit,
-          result: widget.updatedQuantity,
+          result: (quantity) {
+            controller.changeItemQuantity(
+              item: widget.itemCart,
+              quantity: quantity,
+            );
+          },
           isRemovable: true,
         ),
       ),

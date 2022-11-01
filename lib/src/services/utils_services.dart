@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -48,5 +51,12 @@ class UtilsServices {
       textColor: isError ? Colors.white : Colors.black,
       fontSize: 14,
     );
+  }
+
+  // Decode Qr code
+  Uint8List decodeQrCodeImage(String value) {
+    String base64String = value.split(',').last;
+
+    return base64.decode(base64String);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:quitanda/src/models/cart_item_model.dart';
@@ -7,10 +8,14 @@ import 'package:quitanda/src/pages/cart/repository/cart_repository.dart';
 import 'package:quitanda/src/pages/cart/result/cart_result.dart';
 import 'package:quitanda/src/services/utils_services.dart';
 
+import '../../../widgets/payment_widget.dart';
+
 class CartController extends GetxController {
   final repository = CartRepository();
   final authController = Get.find<AuthController>();
   final utilsServices = UtilsServices();
+
+  bool isLoadingCheckout = false;
 
   List<CartItemModel> items = [];
 
@@ -57,14 +62,30 @@ class CartController extends GetxController {
   }
 
   Future<bool> changeItemQuantity({
-    required CartItemModel cartItem,
+    required CartItemModel item,
     required int quantity,
   }) async {
     final result = await repository.changeItemQuantity(
-      cartItemId: cartItem.id,
+      cartItemId: item.id,
       token: authController.user.token!,
       quantity: quantity,
     );
+
+    if (result) {
+      print('chamou');
+      if (quantity == 0) {
+        items.removeWhere((cartItem) => cartItem.id == item.id);
+      } else {
+        items.firstWhere((cartItem) => cartItem.id == item.id).quantity =
+            quantity;
+      }
+      update();
+    } else {
+      utilsServices.showToast(
+        message: 'Ocorreu um erro ao salvar produto',
+        isError: true,
+      );
+    }
 
     return result;
   }
@@ -79,19 +100,10 @@ class CartController extends GetxController {
       // Já existe
       final product = items[itemIndex];
 
-      final result = await changeItemQuantity(
-        cartItem: product,
+      await changeItemQuantity(
+        item: product,
         quantity: product.quantity + quantity,
       );
-
-      if (result) {
-        items[itemIndex].quantity += quantity;
-      } else {
-        utilsServices.showToast(
-          message: 'Ocorreu um erro ao alterar a quantidade do produto',
-          isError: true,
-        );
-      }
     } else {
       final CartResult<String> result = await repository.addItemToCart(
           userId: authController.user.id!,
@@ -118,5 +130,38 @@ class CartController extends GetxController {
     }
 
     update();
+  }
+
+  void setLoadingCheckout(bool value) {
+    isLoadingCheckout = value;
+    update();
+  }
+
+  Future checkout() async {
+    setLoadingCheckout(true);
+
+    final result = await repository.checkout(
+      token: authController.user.token!,
+      total: cartTotalPrice(),
+    );
+
+    setLoadingCheckout(false);
+
+    result.when(
+      success: (order) {
+        items.clear();
+        update();
+
+        showDialog(
+          context: Get.context!,
+          builder: (context) {
+            return PaymentDialog(order: order);
+          },
+        );
+      },
+      error: (error) {
+        utilsServices.showToast(message: error);
+      },
+    );
   }
 }

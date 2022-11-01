@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quitanda/src/config/custom_color.dart';
 import 'package:quitanda/src/models/item_model.dart';
+import 'package:quitanda/src/pages/cart/controller/cart_controller.dart';
 import 'package:quitanda/src/pages/pages_route/app_pages.dart';
 import 'package:quitanda/src/services/utils_services.dart';
 
@@ -9,6 +10,7 @@ class ItemTile extends StatelessWidget {
   ItemTile({super.key, required this.item});
 
   final ItemModel item;
+  final cartController = Get.find<CartController>();
 
   UtilsServices utilsServices = UtilsServices();
 
@@ -84,20 +86,25 @@ class ItemTile extends StatelessWidget {
         Positioned(
           top: 4,
           right: 4,
-          child: Container(
-            height: 40,
-            width: 35,
-            decoration: BoxDecoration(
-              color: CustomColors.customSwatchColor,
-              borderRadius: const BorderRadius.only(
-                topRight: Radius.circular(20),
-                bottomLeft: Radius.circular(15),
+          child: GestureDetector(
+            onTap: () {
+              cartController.addItemtoCart(item: item);
+            },
+            child: Container(
+              height: 40,
+              width: 35,
+              decoration: BoxDecoration(
+                color: CustomColors.customSwatchColor,
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(15),
+                ),
               ),
-            ),
-            child: const Icon(
-              Icons.add_shopping_cart_outlined,
-              color: Colors.white,
-              size: 20,
+              child: const Icon(
+                Icons.add_shopping_cart_outlined,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
           ),
         ),

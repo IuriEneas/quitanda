@@ -2,6 +2,8 @@ import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quitanda/src/config/custom_color.dart';
+import 'package:quitanda/src/pages/base/controller/navigation_controller.dart';
+import 'package:quitanda/src/pages/cart/controller/cart_controller.dart';
 import 'package:quitanda/src/pages/home/controller/home_controller.dart';
 import 'package:quitanda/src/widgets/custom_shimmer.dart';
 import 'components/category_tile.dart';
@@ -44,22 +46,31 @@ class _HomeTabState extends State<HomeTab> {
           // Cart Button
           Padding(
             padding: const EdgeInsets.only(top: 15, right: 15),
-            child: GestureDetector(
-              onTap: () {},
-              child: Badge(
-                badgeColor: CustomColors.customContrastColor,
-                badgeContent: const Text(
-                  '2',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
+            child: GetBuilder<CartController>(
+              builder: (_) {
+                return GestureDetector(
+                  onTap: () {
+                    final navigationController =
+                        Get.find<NavigationController>();
+
+                    navigationController.navigatePageView(NavigationTabs.cart);
+                  },
+                  child: Badge(
+                    badgeColor: CustomColors.customContrastColor,
+                    badgeContent: Text(
+                      _.items.length.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.shopping_cart,
+                      color: CustomColors.customSwatchColor,
+                    ),
                   ),
-                ),
-                child: Icon(
-                  Icons.shopping_cart,
-                  color: CustomColors.customSwatchColor,
-                ),
-              ),
+                );
+              },
             ),
           ),
         ],
