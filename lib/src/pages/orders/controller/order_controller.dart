@@ -20,6 +20,9 @@ class OrdersController extends GetxController {
   }
 
   Future<void> getOrders() async {
+    orders.clear();
+    update();
+
     OrderResult<List<OrderModel>> result = await repository.getOrders(
       userId: authController.user.id!,
       token: authController.user.token!,

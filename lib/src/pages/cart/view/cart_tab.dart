@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:quitanda/src/pages/cart/controller/cart_controller.dart';
 import 'package:quitanda/src/services/utils_services.dart';
 import 'package:quitanda/src/config/custom_color.dart';
-import 'package:quitanda/src/config/app_data.dart' as app_data;
 
 import 'components/cart_tile.dart';
 
@@ -16,16 +15,6 @@ class CartTab extends StatefulWidget {
 
 class _CartTabState extends State<CartTab> {
   final UtilsServices utilsServices = UtilsServices();
-  final cartController = Get.find<CartController>();
-
-  double cartTotalPrice() {
-    double total = 0;
-
-    for (var item in app_data.cartItems) {
-      total += item.totalPrice();
-    }
-    return total;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,16 +114,18 @@ class _CartTabState extends State<CartTab> {
                   child: GetBuilder<CartController>(
                     builder: (_) {
                       return ElevatedButton(
-                        onPressed: () async {
-                          bool? result = await showOrderConfirmation();
+                        onPressed: (_.isLoadingCheckout || _.items.isEmpty)
+                            ? null
+                            : () async {
+                                bool? result = await showOrderConfirmation();
 
-                          if (result ?? false) {
-                            cartController.checkout();
-                          } else {
-                            utilsServices.showToast(
-                                message: 'Pedido não confirmado');
-                          }
-                        },
+                                if (result ?? false) {
+                                  _.checkout();
+                                } else {
+                                  utilsServices.showToast(
+                                      message: 'Pedido não confirmado');
+                                }
+                              },
                         style: ElevatedButton.styleFrom(
                           primary: CustomColors.customSwatchColor,
                           shape: RoundedRectangleBorder(

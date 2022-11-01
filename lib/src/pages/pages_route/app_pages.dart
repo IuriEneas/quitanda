@@ -34,9 +34,9 @@ abstract class AppPages {
       page: () => const BaseScreen(),
       bindings: [
         HomeBinding(),
+        OrdersBinding(),
         NavigationBinding(),
         CartBinding(),
-        OrdersBinding(),
       ],
     ),
   ];

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:quitanda/src/pages/auth/controller/auth_controller.dart';
 import 'package:quitanda/src/pages/pages_route/app_pages.dart';
@@ -6,6 +7,8 @@ import 'package:quitanda/src/pages/pages_route/app_pages.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   Get.put(AuthController());
+
+  DeviceOrientation.portraitUp;
   runApp(const MyApp());
 }
 

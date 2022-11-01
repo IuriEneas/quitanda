@@ -6,6 +6,7 @@ import 'package:quitanda/src/models/item_model.dart';
 import 'package:quitanda/src/pages/auth/controller/auth_controller.dart';
 import 'package:quitanda/src/pages/cart/repository/cart_repository.dart';
 import 'package:quitanda/src/pages/cart/result/cart_result.dart';
+import 'package:quitanda/src/pages/orders/controller/order_controller.dart';
 import 'package:quitanda/src/services/utils_services.dart';
 
 import '../../../widgets/payment_widget.dart';
@@ -13,6 +14,7 @@ import '../../../widgets/payment_widget.dart';
 class CartController extends GetxController {
   final repository = CartRepository();
   final authController = Get.find<AuthController>();
+  final orderController = Get.find<OrdersController>();
   final utilsServices = UtilsServices();
 
   bool isLoadingCheckout = false;
@@ -151,6 +153,7 @@ class CartController extends GetxController {
       success: (order) {
         items.clear();
         update();
+        orderController.getOrders();
 
         showDialog(
           context: Get.context!,
